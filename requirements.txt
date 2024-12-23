@@ -5,3 +5,4 @@ scikit-learn
 dvc
 dvc-gdrive
 jupyterlab
+fastapi[standard]
