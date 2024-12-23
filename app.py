@@ -15,14 +15,7 @@ PATH = "models"
 @app.post("/continue-train")
 def continue_train(model_name: str, train_input: UploadFile, new_model_name: str):
     try:
-        saved_model_name = model_name + ".pickle"
-        model_path = os.path.join(PATH, saved_model_name)
-
-        if not os.path.exists(model_path):
-            raise HTTPException(status_code=404, detail="Model not found.")
-
-        with open(model_path, "rb") as saved_model_file:
-            model = pickle.load(saved_model_file)
+        model = model_from_file(model_name)
 
         train_data = pd.read_csv(train_input.file)
 
@@ -72,14 +65,7 @@ def continue_train(model_name: str, train_input: UploadFile, new_model_name: str
 @app.post("/predict")
 def predict(model_name: str, test_input: UploadFile):
     try:
-        saved_model_name = model_name + ".pickle"
-        model_path = os.path.join(PATH, saved_model_name)
-
-        if not os.path.exists(model_path):
-            raise HTTPException(status_code=404, detail="Model not found.")
-
-        with open(model_path, "rb") as saved_model_file:
-            model = pickle.load(saved_model_file)
+        model = model_from_file(model_name)
 
         test_data = pd.read_csv(test_input.file)
 
@@ -103,3 +89,15 @@ def predict(model_name: str, test_input: UploadFile):
 @app.get("/models")
 def models():
     return [os.path.splitext(f)[0] for f in os.listdir(PATH) if f.endswith('.pickle')]
+
+
+def model_from_file(file_name):
+    saved_model_name = file_name + ".pickle"
+    model_path = os.path.join(PATH, saved_model_name)
+
+    if not os.path.exists(model_path):
+        raise HTTPException(status_code=404, detail="Model not found.")
+
+    with open(model_path, "rb") as saved_model_file:
+        model = pickle.load(saved_model_file)
+    return model
