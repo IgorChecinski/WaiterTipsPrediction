@@ -6,3 +6,5 @@ dvc
 dvc-gdrive
 jupyterlab
 fastapi[standard]
+optuna
+pycaret
