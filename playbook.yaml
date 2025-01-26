@@ -1,0 +1,54 @@
+---
+- name: Configure environment
+  hosts: all
+  become: true
+  tasks:
+    - name: Install pip on Alpine
+      ansible.builtin.package:
+        name: py3-pip
+        state: present
+      when: ansible_facts['os_family'] | lower == 'alpine'
+
+    - name: Install modules dependencies
+      ansible.builtin.package:
+        name: py3-requests
+        state: present
+      when: ansible_facts['os_family'] | lower == 'alpine'
+
+- name: ASI application deployment
+  hosts: all
+  vars:
+    image_name: waiter-tips:latest
+    image_path: waiter-tips.tar
+  tasks:
+    - name: Dump a tarball with the image
+      community.docker.docker_image_export:
+        name: "{{ image_name }}"
+        path: "{{ image_path }}"
+      run_once: true
+      delegate_to: localhost
+
+    - name: Copy a tarball with the image
+      ansible.builtin.copy:
+        src: "{{ image_path }}"
+        dest: "{{ image_path }}"
+        mode: u=rw,g=r,o=r
+
+    - name: Load all image(s) from the given tar file
+      community.docker.docker_image_load:
+        path: "{{ image_path }}"
+      become: true
+
+    - name: Start app
+      community.docker.docker_container:
+        name: my-asi-app
+        image: "{{ image_name }}"
+        state: started
+        recreate: true
+        exposed_ports:
+          - "3000"
+        published_ports:
+          - "3000:3000"
+      become: true
+        # volumes_from:
+        #   - mydata
