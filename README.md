@@ -13,3 +13,39 @@ Run command in notebook folder:
 ```shell
 cd notebook; jupyter lab 
 ```
+
+## Start FastAPI
+
+```shell
+fastapi dev app.py
+```
+Endpoints:
+* /models
+* /continue-train
+* /predict
+
+## Create sandbox
+
+```shell
+docker network create ci-cd
+docker compose up
+docker network inspect ci-cd
+```
+
+## Create docker image
+```shell
+docker build -t waiter-tips .
+```
+
+## Ansible
+
+```shell
+ansible-playbook -i inventory.yaml playbook.yaml
+```
+
+## Login to ssh
+
+```shell
+ssh ansible@localhost -p 2222
+```
+
